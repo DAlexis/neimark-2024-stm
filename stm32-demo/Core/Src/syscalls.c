@@ -29,16 +29,21 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/times.h>
+#include <sys/unistd.h>
 
+#include "stm32f1xx_hal.h"
 
 /* Variables */
 extern int __io_putchar(int ch) __attribute__((weak));
 extern int __io_getchar(void) __attribute__((weak));
 
+extern UART_HandleTypeDef huart1;
 
 char *__env[1] = { 0 };
 char **environ = __env;
 
+int malloc_count = 0;
+int free_count = 0;
 
 /* Functions */
 void initialise_monitor_handles()
@@ -79,8 +84,19 @@ __attribute__((weak)) int _read(int file, char *ptr, int len)
 
 __attribute__((weak)) int _write(int file, char *ptr, int len)
 {
-  (void)file; (void)ptr; (void)len;
-  // Here should be write implementation. Use UART :)
+  switch (file)
+  {
+  case STDOUT_FILENO: /* stdout */
+      HAL_UART_Transmit(&huart1, (unsigned char*) ptr, len, 100);
+      break;
+  case STDERR_FILENO: /* stderr */
+      HAL_UART_Transmit(&huart1, (unsigned char*) ptr, len, 100);
+      break;
+  default:
+      errno = EBADF;
+      return -1;
+  }
+
   return len;
 }
 
@@ -168,4 +184,19 @@ int _execve(char *name, char **argv, char **env)
   (void)env;
   errno = ENOMEM;
   return -1;
+}
+
+extern void* __real_malloc(size_t);
+extern void __real_free(void*);
+
+void* __wrap_malloc(size_t size)
+{
+    malloc_count++;
+    return __real_malloc(size);
+}
+
+void __wrap_free(void* pv)
+{
+    free_count++;
+    __real_free(pv);
 }

@@ -29,6 +29,8 @@
  */
 static uint8_t *__sbrk_heap_end = NULL;
 
+int sbrk_call_counter = 0;
+
 /**
  * @brief _sbrk() allocates memory to the newlib heap and is used by malloc
  *        and others from the C library
@@ -52,6 +54,7 @@ static uint8_t *__sbrk_heap_end = NULL;
  */
 void *_sbrk(ptrdiff_t incr)
 {
+  sbrk_call_counter++;
   extern uint8_t _end; /* Symbol defined in the linker script */
   extern uint8_t _estack; /* Symbol defined in the linker script */
   extern uint32_t _Min_Stack_Size; /* Symbol defined in the linker script */

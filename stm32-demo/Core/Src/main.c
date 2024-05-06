@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "cpp-code.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,7 +91,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  const unsigned char text[] = "Hello, stm32 C developer!\r\n";
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -101,7 +102,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
     cpp_code_entry_point();
-    HAL_UART_Transmit(&huart1, text, sizeof(text), 100);
+    printf("printf alive!\r\n");
     HAL_Delay(1000);
   }
   /* USER CODE END 3 */
